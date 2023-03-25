@@ -1,0 +1,74 @@
+New things which i learned:
+
+1. Updating the JSON field in database:
+    - i have one database and which has 10 diffenrent columns with different type of format.
+    - there is one field called content, type of this field is json and my task is to update this field using SQL query.
+    - format of this field is looks like,
+            content
+            {
+                "heading":"title:1",
+                "isdisable":false,
+                "parent_id":"123sd-34554f-3455r34f-32ed23x"
+            }
+    - i want to update update parent_id which is in content field with new value.
+    - so, i created query which update this field with new value.
+    - query is looks like, 
+        data = json.dumps({"parent_id": new_parent_id})
+        UPDATE page
+                    SET content = content ::jsonb || '{data}'
+                    WHERE content ->> 'parent_id' = '{current_parent_id}'
+                    AND order_no > {order_no}
+                    AND lesson_id = '{lesson_id}'
+                    AND is_archived = false; 
+        DESCRIPTION:
+                i want to update all fields which have "123sd-34554f-3455r34f-32ed23x" this value in parent_id.
+                so "123sd-34554f-3455r34f-32ed23x" is my current_parent_id.
+                i want to replace "123sd-34554f-3455r34f-32ed23x" with "123-345-678-sc4-34r".
+                so "123-345-678-sc4-34r" is my new_parent_id.
+                this logic needs to apply after particular order_no. let say after 10. and in particular lesson_id.
+            finally, after given order_no this query replace all value which contains current_parent_id with 
+            new_parent_id in given lesson.
+
+2. What if i got null value in inner queires:
+    - in my project, i have one scenario that, i need to fing max value of page which has category = "SECTION". but 
+        what if there is category ='SECION' after the current section.
+    - at that time i got null value, so need to return maximum value of order in this scenario.
+    UPDATE page
+            SET content = content::jsonb || '{data}'
+            WHERE lesson_id = '{lesson_id}'
+                AND category = 'SECTION'
+                AND sub_category = 'SUB_SECTION'
+                AND is_archived = false
+                AND order_no BETWEEN {start_order_no} AND 
+                        (
+                            SELECT COALESCE(
+                                           (
+                                                SELECT order_no FROM page
+                                                WHERE lesson_id = '{lesson_id}'
+                                                AND order_no >{start_order_no}
+                                                AND category = 'SECTION'
+                                                AND (sub_category IS NULL OR sub_category = ''
+                                                AND is_archived = false
+                                                order by order_no asc
+                                                LIMIT 1),
+                                                
+                                            (
+                                                SELECT MAX(order_no) FROM page
+                                                WHERE lesson_id = '{lesson_id}'
+                                                AND is_archived = false
+                                            )
+                                        )
+                            )
+        - This query will return max value of order numbr if there is no section after current section.
+
+3. For reducing time complexity in SQL:
+    if query is returning whole row instead of particular row, than it may affect on time complexity.
+    Use less * as possible.
+
+4. Data which are return by db:
+    whenever i recived data from database, it is always in object.
+    so we need to re format this data into appropriate form.
+    in my project i need to convert object into json format.
+    so, i used json.dumps().
+    if i want to see data which comes from db than, <variable_name>.items is helps.
+    if db returns only single value than <variable_name>.__dict__ is helps.
