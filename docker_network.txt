@@ -1,0 +1,37 @@
+suppose i have one network called my network. and in this network, there are total 4 containers connected with each other.
+
+now, we can imagine as each conainer is one individual system. so each container have their IP address.
+
+My-network
+|
+|
+------container 1  192.168.144.1
+|
+|
+------container 2 192.168.144.7
+|
+|
+------conainer 3 192.168.144.5
+|
+|
+-------container 4 192.168.144.6
+
+now command of networking in docker.
+
+To find all network in docker
+
+- docker network ls
+    (it will return all the network which are in my system on docker)
+
+- docker network inspect <network_name>
+    (it will return all network details about each containers in docker-network)
+
+- as i mention earlier that each container is works as individual system. so we can create directory into each container
+
+- now i want to copy one file which located at my local system into docker container.
+    - my file location is : submit/data.csv and i want paste this file into container 1 in /temp.
+    command:
+            docker cp <local_system_file_path> <container_name>/<container_file_path>
+            docker cp submit/data.csv container1/temp
+            so, if there is no directory /temp in docker than this command will create direcatory and paste the file into this directory from local.
+            
